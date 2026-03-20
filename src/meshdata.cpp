@@ -1,3 +1,4 @@
+#include <cstring>
 #include "meshdata.h"
 
 static int receivedBufferLen = 0;

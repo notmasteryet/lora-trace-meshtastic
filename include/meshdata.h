@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
+#include <stdint.h>
 
 struct MeshHeader {
   uint32_t dest;
