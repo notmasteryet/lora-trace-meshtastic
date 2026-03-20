@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Arduino.h>
+
 struct MeshHeader {
   uint32_t dest;
   uint32_t from;
@@ -35,5 +37,6 @@ struct Received {
 
 constexpr int ReceivedBufferLen = 128;
 
-int receivedBufferLen = 0;
-Received receivedBuffer[ReceivedBufferLen];
+int receivedCount();
+const Received& receivedAt(int index);
+void insertReceived(const MeshHeader& header, float rssi, float snr, float err, unsigned long now);
