@@ -25,7 +25,7 @@ void paintTable() {
     display->drawString(3, y, String(r.rssi, 0));
     display->drawString(37, y, String(r.snr, 1));
     display->drawString(70, y, String(r.err, 1));
-    display->drawString(110, y, String(r.header.hops));
+    display->drawString(110, y, (r.bad ? "!" : "") + String(r.header.hops));
     if (offset + i > 0 && r.header.isSame(receivedAt(offset + i - 1).header)) {
         display->drawLine(0, max(0, y - 6), 0, y + 6);
     }

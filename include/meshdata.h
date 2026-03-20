@@ -33,10 +33,11 @@ struct Received {
   float rssi;
   float snr;
   float err;
+  bool bad;
 };
 
 constexpr int ReceivedBufferLen = 128;
 
 int receivedCount();
 const Received& receivedAt(int index);
-void insertReceived(const MeshHeader& header, float rssi, float snr, float err, unsigned long now);
+void insertReceived(const MeshHeader& header, float rssi, float snr, float err, unsigned long now, bool bad = false);

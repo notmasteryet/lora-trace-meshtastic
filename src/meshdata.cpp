@@ -11,7 +11,7 @@ const Received& receivedAt(int index) {
   return receivedBuffer[index];
 }
 
-void insertReceived(const MeshHeader& header, float rssi, float snr, float err, unsigned long now) {
+void insertReceived(const MeshHeader& header, float rssi, float snr, float err, unsigned long now, bool bad) {
   if (receivedBufferLen + 1 >= ReceivedBufferLen) {
     const int ChunkToRemove = 10;
     receivedBufferLen -= ChunkToRemove;
@@ -19,14 +19,16 @@ void insertReceived(const MeshHeader& header, float rssi, float snr, float err, 
   }
   int index = receivedBufferLen++;
 
-  for (int i = index; i > 0; --i) {
-    if ((now - receivedBuffer[i - 1].time) > 5000) break;
-    if (header.isSame(receivedBuffer[i - 1].header)) {
-      if (index > i) {
-        memmove(&receivedBuffer[i + 1], &receivedBuffer[i], (index - i) * sizeof(Received));
-        index = i;
+  if (!bad) {
+    for (int i = index; i > 0; --i) {
+      if ((now - receivedBuffer[i - 1].time) > 5000) break;
+      if (header.isSame(receivedBuffer[i - 1].header)) {
+        if (index > i) {
+          memmove(&receivedBuffer[i + 1], &receivedBuffer[i], (index - i) * sizeof(Received));
+          index = i;
+        }
+        break;
       }
-      break;
     }
   }
 
@@ -36,4 +38,5 @@ void insertReceived(const MeshHeader& header, float rssi, float snr, float err, 
   r.rssi = rssi;
   r.snr = snr;
   r.err = err;
+  r.bad = bad;
 }

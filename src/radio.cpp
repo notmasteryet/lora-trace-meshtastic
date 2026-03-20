@@ -60,7 +60,15 @@ bool checkRadio() {
       Serial.print(F("\tErr:\t"));   Serial.print(err);  Serial.println(F(" Hz"));
       return true;
     } else if (state == RADIOLIB_ERR_CRC_MISMATCH) {
-      Serial.println(F("CRC error!"));
+      float rssi = radio.getRSSI();
+      float snr  = radio.getSNR();
+      float err  = radio.getFrequencyError();
+      insertReceived(MeshHeader{}, rssi, snr, err, now, true);
+      Serial.print(F("CRC error\t"));
+      Serial.print(F("RSSI: ")); Serial.print(rssi); Serial.print(F(" dBm "));
+      Serial.print(F("\tSNR: "));  Serial.print(snr);  Serial.print(F(" dB"));
+      Serial.print(F("\tErr: "));  Serial.print(err);  Serial.println(F(" Hz"));
+      return true;
     } else {
       Serial.print(F("failed, code "));
       Serial.println(state);
