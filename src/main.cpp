@@ -5,6 +5,9 @@
 #include "encoder.h"
 #include "radio.h"
 
+// Switch between protocols here (later: read from a physical pin)
+Mode currentMode = MODE_MESHTASTIC;
+
 static OLEDDisplay* display;
 
 int table_offset = 0;
@@ -25,16 +28,32 @@ void paintTable() {
     display->drawString(3, y, String(r.rssi, 0));
     display->drawString(37, y, String(r.snr, 1));
     display->drawString(70, y, String(r.err, 1));
-    display->drawString(110, y, (r.bad ? "!" : "") + String(r.header.hops));
-    if (offset + i > 0 && r.header.isSame(receivedAt(offset + i - 1).header)) {
+
+    if (currentMode == MODE_MESHCORE) {
+      display->drawString(110, y, (r.bad ? "!" : "") + String(MCHeader::payloadTypeName(r.mc.payloadType())));
+      if (offset + i > 0 && r.mc.isSame(receivedAt(offset + i - 1).mc)) {
         display->drawLine(0, max(0, y - 6), 0, y + 6);
+      }
+    } else {
+      display->drawString(110, y, (r.bad ? "!" : "") + String(r.header.hops));
+      if (offset + i > 0 && r.header.isSame(receivedAt(offset + i - 1).header)) {
+        display->drawLine(0, max(0, y - 6), 0, y + 6);
+      }
     }
   }
-  if (offset + height < count &&
-      receivedAt(offset + height).header.isSame(receivedAt(offset + height - 1).header)) {
-    int y = height * 13;
-    display->drawLine(0, y - 6, 0, y);
+
+  if (currentMode == MODE_MESHCORE) {
+    if (offset + height < count &&
+        receivedAt(offset + height).mc.isSame(receivedAt(offset + height - 1).mc)) {
+      display->drawLine(0, height * 13 - 6, 0, height * 13);
+    }
+  } else {
+    if (offset + height < count &&
+        receivedAt(offset + height).header.isSame(receivedAt(offset + height - 1).header)) {
+      display->drawLine(0, height * 13 - 6, 0, height * 13);
+    }
   }
+
   if (count > height) {
     int scaled_size = 13 * height;
     int mark_size = height * scaled_size / count;
