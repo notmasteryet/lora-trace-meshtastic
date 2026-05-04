@@ -90,7 +90,17 @@ bool checkRadio() {
         return true;
       }
     } else if (state == RADIOLIB_ERR_CRC_MISMATCH) {
-      insertReceived(MCHeader{}, rssi, snr, err, now, true);
+      MCHeader mc{};
+      if (numBytes >= 2) {
+        uint8_t hdr = buf[0];
+        bool has_tc = (hdr & 0x03) == 0x00 || (hdr & 0x03) == 0x03;
+        int i = 1 + (has_tc ? 4 : 0);
+        if (i < numBytes) {
+          mc.header   = hdr;
+          mc.path_len = buf[i];
+        }
+      }
+      insertReceived(mc, rssi, snr, err, now, true);
       Serial.printf("MC CRC error\tRSSI: %.0f dBm\tSNR: %.1f dB\tErr: %.1f Hz\n", rssi, snr, err);
       return true;
     }
@@ -107,7 +117,10 @@ bool checkRadio() {
     Serial.printf("\t\tRSSI: %.1f dBm\tSNR: %.1f dB\tErr: %.1f Hz\n", rssi, snr, err);
     return true;
   } else if (state == RADIOLIB_ERR_CRC_MISMATCH) {
-    insertReceived(MeshHeader{}, rssi, snr, err, now, true);
+    MeshHeader hdr{};
+    if (numBytes >= (int)sizeof(MeshHeader))
+      hdr = *reinterpret_cast<MeshHeader*>(buf);
+    insertReceived(hdr, rssi, snr, err, now, true);
     Serial.printf("CRC error\tRSSI: %.1f dBm\tSNR: %.1f dB\tErr: %.1f Hz\n", rssi, snr, err);
     return true;
   }
