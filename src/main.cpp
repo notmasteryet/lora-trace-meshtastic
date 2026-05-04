@@ -5,7 +5,6 @@
 #include "encoder.h"
 #include "radio.h"
 
-// Switch between protocols here (later: read from a physical pin)
 Mode currentMode = MODE_MESHTASTIC;
 
 static OLEDDisplay* display;
@@ -64,6 +63,11 @@ void paintTable() {
 
 void setup() {
   Serial.begin(9600);
+
+  pinMode(MODE_BTN_PIN, INPUT_PULLUP);
+  if (digitalRead(MODE_BTN_PIN) == LOW)
+    currentMode = MODE_MESHCORE;
+
   setupEncoder();
   setupRadio();
 

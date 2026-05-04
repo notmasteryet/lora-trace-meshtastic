@@ -15,6 +15,9 @@
   #define ENC_A_PIN   47
   #define ENC_B_PIN   48
 
+  // Mode selection button (active-low, internal pull-up)
+  #define MODE_BTN_PIN 19
+
 // ─── Add new boards here ─────────────────────────────────────────────────────
 // #elif defined(BOARD_TTGO_LORA32_V1)
 //   ...
